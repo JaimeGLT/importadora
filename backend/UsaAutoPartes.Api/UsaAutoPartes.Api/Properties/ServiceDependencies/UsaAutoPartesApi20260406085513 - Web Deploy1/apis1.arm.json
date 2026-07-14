@@ -102,7 +102,7 @@
                 "apiRevision": "1",
                 "description": null,
                 "subscriptionRequired": true,
-                "serviceUrl": "https://backend-importadora-production.up.railway.app",
+                "serviceUrl": "https://importadora-posn.onrender.com",
                 "path": "",
                 "protocols": [
                   "https"

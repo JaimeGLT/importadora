@@ -8,7 +8,6 @@
 *.user
 *.userosscache
 **/appsettings.Development.json
-**/appsettings.json
 *.sln.docstates
 
 # NuGet

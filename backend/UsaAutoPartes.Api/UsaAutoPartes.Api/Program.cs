@@ -43,7 +43,7 @@ builder.Services.AddOpenApi(options =>
     {
         document.Servers = new List<Microsoft.OpenApi.Models.OpenApiServer>
         {
-            new() { Url = "https://backend-importadora-production.up.railway.app" }
+            new() { Url = "https://importadora-posn.onrender.com" }
         };
         return Task.CompletedTask;
     });
