@@ -1,6 +1,12 @@
 /**
  * ImageUploader — galería de imágenes de un producto.
  *
+ * MODO PORTAFOLIO: la UI (agregar, quitar, arrastrar para reordenar) sigue
+ * funcionando igual, pero el padre (InventarioPage.handleSave) ya NO llama
+ * al backend para subir/borrar/reordenar — ver comentarios ahí. Se deja el
+ * componente intacto para que la demo se sienta completa; al guardar el
+ * producto se avisa que las imágenes no se modificaron.
+ *
  * Siempre en modo "diferido": el componente NO hace llamadas al backend.
  * Acumula tres piezas de estado local y las expone al padre vía `onChange`:
  *  - `pending: { file, localId }[]` → archivos a subir cuando el usuario
@@ -344,7 +350,7 @@ export function ImageUploader({
                 : 'Arrastra imágenes o haz clic'}
           </p>
           <p className="text-[11px] text-[#7A7571] mt-0.5">
-            Se subirán al guardar el producto · máx {MAX_MB} MB cada una
+            Edición de imágenes no disponible por el momento · máx {MAX_MB} MB cada una
           </p>
         </div>
       </div>

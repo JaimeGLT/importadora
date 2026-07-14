@@ -8,7 +8,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import { ROLE_HOME } from '@/lib/roles'
 import { lazy, Suspense } from 'react'
  
-const LoginPage              = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })))
+// MODO PORTAFOLIO: login deshabilitado, ver AuthContext.tsx. Se deja el
+// import comentado para poder restaurar la ruta /login fácilmente.
+// const LoginPage            = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })))
 const DashboardPage          = lazy(() => import('@/pages/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })))
 const InventarioPage         = lazy(() => import('@/pages/inventario/InventarioPage').then(m => ({ default: m.InventarioPage })))
 const AjustesPage            = lazy(() => import('@/pages/inventario/AjustesPage').then(m => ({ default: m.AjustesPage })))
@@ -23,13 +25,15 @@ const InventarioReportePage  = lazy(() => import('@/pages/reportes/InventarioRep
 const OrdenesReportePage     = lazy(() => import('@/pages/reportes/OrdenesReportePage').then(m => ({ default: m.OrdenesReportePage })))
 const ComisionesPage         = lazy(() => import('@/pages/reportes/ComisionesPage').then(m => ({ default: m.ComisionesPage })))
 const ConfiguracionPage      = lazy(() => import('@/pages/config/ConfiguracionPage').then(m => ({ default: m.ConfiguracionPage })))
-const UsuariosPage           = lazy(() => import('@/pages/sistema/usuarios/UsuariosPage').then(m => ({ default: m.UsuariosPage })))
+// MODO PORTAFOLIO: gestión de usuarios deshabilitada, ver Sidebar.tsx y UsuarioController.cs
+// const UsuariosPage        = lazy(() => import('@/pages/sistema/usuarios/UsuariosPage').then(m => ({ default: m.UsuariosPage })))
 const ClientesPage           = lazy(() => import('@/pages/ventas/clientes/ClientesPage').then(m => ({ default: m.ClientesPage })))
 const EscaneoPage            = lazy(() => import('@/pages/ventas/escaneo/EscaneoPage').then(m => ({ default: m.EscaneoPage })))
 const VentasHistorialPage    = lazy(() => import('@/pages/ventas/VentasHistorialPage').then(m => ({ default: m.VentasHistorialPage })))
 const CreditosPage           = lazy(() => import('@/pages/creditos/CreditosPage').then(m => ({ default: m.CreditosPage })))
 const FacturaExtractorPage   = lazy(() => import('@/pages/importaciones/FacturaExtractorPage').then(m => ({ default: m.FacturaExtractorPage })))
-const MiCuentaPage           = lazy(() => import('@/pages/mi-cuenta/MiCuentaPage').then(m => ({ default: m.MiCuentaPage })))
+// MODO PORTAFOLIO: perfil/contraseña deshabilitados, ver Sidebar.tsx y MiCuentaController.cs
+// const MiCuentaPage        = lazy(() => import('@/pages/mi-cuenta/MiCuentaPage').then(m => ({ default: m.MiCuentaPage })))
 
 function RootRedirect() {
   const { user } = useAuth()
@@ -58,7 +62,8 @@ export default function App() {
         <Suspense fallback={<div className="flex h-screen items-center justify-center text-sm text-gray-400">Cargando…</div>}>
         <BackgroundTasks />
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
+          {/* MODO PORTAFOLIO: ruta de login deshabilitada, ver AuthContext.tsx */}
+          {/* <Route path="/login" element={<LoginPage />} /> */}
           <Route element={<ProtectedRoute />}>
 
             <Route element={<RoleGuard allowedRoles={['admin']} />}>
@@ -77,7 +82,8 @@ export default function App() {
               <Route path="/importaciones/proveedores" element={<ProveedoresPage />} />
               <Route path="/importaciones/extractor" element={<FacturaExtractorPage />} />
               <Route path="/configuracion" element={<ConfiguracionPage />} />
-              <Route path="/sistema/usuarios" element={<UsuariosPage />} />
+              {/* MODO PORTAFOLIO: gestión de usuarios deshabilitada, ver Sidebar.tsx y UsuarioController.cs */}
+              {/* <Route path="/sistema/usuarios" element={<UsuariosPage />} /> */}
             </Route>
 
             <Route element={<RoleGuard allowedRoles={['admin', 'almacenero']} />}>
@@ -100,8 +106,8 @@ export default function App() {
               <Route path="/ventas/escaneo" element={<EscaneoPage />} />
             </Route>
 
-            {/* /mi-cuenta: accesible a TODOS los roles autenticados (sin RoleGuard) */}
-            <Route path="/mi-cuenta" element={<MiCuentaPage />} />
+            {/* MODO PORTAFOLIO: perfil/contraseña deshabilitados, ver Sidebar.tsx y MiCuentaController.cs */}
+            {/* <Route path="/mi-cuenta" element={<MiCuentaPage />} /> */}
 
             <Route path="/" element={<RootRedirect />} />
           </Route>

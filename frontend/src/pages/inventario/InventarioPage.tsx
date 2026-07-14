@@ -36,7 +36,8 @@ import {
 import { MARCAS_QUERY, backendToMarca } from '@/lib/queries/marcas.queries'
 import type { Marca } from '@/types'
 import { api } from '@/lib/api'
-import { subirLoteDiferido, eliminarImagen, reordenarImagenes, marcarImagenPrincipal } from '@/lib/storage'
+// MODO PORTAFOLIO: subida/borrado/reordenado real de imágenes deshabilitado, ver handleSave más abajo.
+// import { subirLoteDiferido, eliminarImagen, reordenarImagenes, marcarImagenPrincipal } from '@/lib/storage'
 import type { ImageUploaderState } from '@/components/ui/ImageUploader'
 import { clsx } from 'clsx'
 
@@ -388,99 +389,97 @@ export function InventarioPage() {
           }
         }
 
-        // ── Sincronizar galería de imágenes ─────────────────────────────
-        // Flujo:
-        //   1) Subir las imágenes nuevas (subirLoteDiferido las crea en R2 + DB
-        //      con orden = max+1, max+2, ... y devuelve los ids en el mismo
-        //      orden en que estaban en `imageOps.pending`).
-        //   2) Construir el mapa localId → id para poder armar el orden final.
-        //   3) Borrar las imágenes existentes marcadas para eliminar.
-        //   4) Reordenar con PUT /reordenar para que la galería visual (mezcla
-        //      de existentes y nuevas) coincida con el `finalOrder` del uploader.
-        //   5) Ajustar la "Principal" para que sea la primera del `finalOrder`
-        //      (con esto cubrimos el caso de reordenar y de subir nuevos).
-        const productoId = Number(editingProducto.id)
-        const localIdToId: Record<string, number> = {}
-        if (imageOps.pending.length > 0) {
-          const { exitosas, fallidas } = await subirLoteDiferido(
-            productoId,
-            imageOps.pending.map((p) => p.file),
-          )
-          if (fallidas.length > 0) {
-            notify.warning(
-              `Producto actualizado, pero ${fallidas.length} de ${imageOps.pending.length} imágenes no se pudieron subir`,
-              { description: fallidas.map((f) => f.archivo.name).join(', ') },
-            )
-          }
-          exitosas.forEach((img, i) => {
-            const op = imageOps.pending[i]
-            if (op) localIdToId[op.localId] = img.id
-          })
-        }
+        // ── MODO PORTAFOLIO: galería de imágenes deshabilitada ──────────
+        // Flujo original (comentado): subir pendientes vía subirLoteDiferido,
+        // borrar los marcados, reordenar con PUT /reordenar y sincronizar la
+        // "Principal". Ninguna de esas llamadas se hace ahora — el producto
+        // se guarda normal, pero las imágenes no se tocan ni en R2 ni en la
+        // DB. Para restaurar, descomentar este bloque y el import de
+        // '@/lib/storage' arriba.
+        //
+        // const productoId = Number(editingProducto.id)
+        // const localIdToId: Record<string, number> = {}
+        // if (imageOps.pending.length > 0) {
+        //   const { exitosas, fallidas } = await subirLoteDiferido(
+        //     productoId,
+        //     imageOps.pending.map((p) => p.file),
+        //   )
+        //   if (fallidas.length > 0) {
+        //     notify.warning(
+        //       `Producto actualizado, pero ${fallidas.length} de ${imageOps.pending.length} imágenes no se pudieron subir`,
+        //       { description: fallidas.map((f) => f.archivo.name).join(', ') },
+        //     )
+        //   }
+        //   exitosas.forEach((img, i) => {
+        //     const op = imageOps.pending[i]
+        //     if (op) localIdToId[op.localId] = img.id
+        //   })
+        // }
+        //
+        // if (imageOps.deletedIds.length > 0) {
+        //   await Promise.allSettled(
+        //     imageOps.deletedIds.map((id) => eliminarImagen(id)),
+        //   )
+        // }
+        //
+        // const finalIds = imageOps.finalOrder
+        //   .map((it) => (it.type === 'existing' ? it.id : localIdToId[it.localId]))
+        //   .filter((id): id is number => typeof id === 'number')
+        //
+        // const restantesActuales = (editingProducto.imagenes ?? [])
+        //   .filter((i) => !imageOps.deletedIds.includes(i.id))
+        //   .map((i) => i.id)
+        //   .concat(Object.values(localIdToId))
+        //
+        // const ordenCambio =
+        //   finalIds.length > 0 &&
+        //   (finalIds.length !== restantesActuales.length ||
+        //     finalIds.some((id, idx) => restantesActuales[idx] !== id))
+        //
+        // if (ordenCambio) {
+        //   await reordenarImagenes(productoId, finalIds)
+        // }
+        //
+        // if (finalIds.length > 0) {
+        //   await marcarImagenPrincipal(productoId, finalIds[0])
+        // }
 
-        if (imageOps.deletedIds.length > 0) {
-          // Best-effort paralelo: si una falla, las otras siguen.
-          await Promise.allSettled(
-            imageOps.deletedIds.map((id) => eliminarImagen(id)),
-          )
-        }
-
-        // Armar el orden final mapeando localId → id. Los ids que no se
-        // encuentren (p.ej. porque un pendiente falló al subir) se omiten.
-        const finalIds = imageOps.finalOrder
-          .map((it) => (it.type === 'existing' ? it.id : localIdToId[it.localId]))
-          .filter((id): id is number => typeof id === 'number')
-
-        const restantesActuales = (editingProducto.imagenes ?? [])
-          .filter((i) => !imageOps.deletedIds.includes(i.id))
-          .map((i) => i.id)
-          .concat(Object.values(localIdToId))
-
-        const ordenCambio =
-          finalIds.length > 0 &&
-          (finalIds.length !== restantesActuales.length ||
-            finalIds.some((id, idx) => restantesActuales[idx] !== id))
-
-        if (ordenCambio) {
-          await reordenarImagenes(productoId, finalIds)
-        }
-
-        // Sincronizar "Principal" con la primera imagen del orden final.
-        // El backend ya promueve automáticamente al borrar la principal, pero
-        // al reordenar/subir no cambia — esto asegura que la principal visual
-        // (primera del `finalOrder`) coincida con la del backend.
-        if (finalIds.length > 0) {
-          await marcarImagenPrincipal(productoId, finalIds[0])
-        }
-
+        const huboIntentoDeImagenes = imageOps.pending.length > 0 || imageOps.deletedIds.length > 0
         loadProducts(page, pageSize, searchTerm, selectedMarcaId)
         notify.success('Producto actualizado', { description: `${data.codigo_universal || '(sin código)'} - ${data.nombre?.trim() || '(sin nombre)'}` })
+        if (huboIntentoDeImagenes) {
+          notify.warning('Las imágenes no se modificaron', { description: 'La edición de imágenes está deshabilitada por el momento.' })
+        }
       } else {
         const createPayload = productoToBackend(data)
         const res = await api.post<{ id: number }>('/Producto', createPayload)
         if (kitOps.mode === 'convertirKit' && kitOps.piezas?.length) {
           await api.put(`/Producto/ConvertirKit/${res.id}`, { piezas: kitOps.piezas })
         }
-        // Si el usuario dejó imágenes pendientes en el ImageUploader, las subimos
-        // ahora que ya tenemos id. Cada archivo pasa por presign + PUT a R2 +
-        // confirmar; los huérfanos de R2 los limpia el R2OrphanGcService del backend.
-        if (imageOps.pending.length > 0) {
-          const { exitosas, fallidas } = await subirLoteDiferido(
-            res.id,
-            imageOps.pending.map((p) => p.file),
-          )
-          if (fallidas.length > 0) {
-            notify.warning(
-              `Producto creado, pero ${fallidas.length} de ${imageOps.pending.length} imágenes no se pudieron subir`,
-              { description: fallidas.map((f) => f.archivo.name).join(', ') },
-            )
-          } else if (exitosas.length > 0) {
-            notify.success(`${exitosas.length} imagen${exitosas.length === 1 ? '' : 'es'} subida${exitosas.length === 1 ? '' : 's'}`)
-          }
-        }
+        // MODO PORTAFOLIO: subida de imágenes deshabilitada. Original (comentado):
+        // subía los pendientes vía subirLoteDiferido ahora que ya hay id de
+        // producto. Para restaurar, descomentar junto con el import de '@/lib/storage'.
+        //
+        // if (imageOps.pending.length > 0) {
+        //   const { exitosas, fallidas } = await subirLoteDiferido(
+        //     res.id,
+        //     imageOps.pending.map((p) => p.file),
+        //   )
+        //   if (fallidas.length > 0) {
+        //     notify.warning(
+        //       `Producto creado, pero ${fallidas.length} de ${imageOps.pending.length} imágenes no se pudieron subir`,
+        //       { description: fallidas.map((f) => f.archivo.name).join(', ') },
+        //     )
+        //   } else if (exitosas.length > 0) {
+        //     notify.success(`${exitosas.length} imagen${exitosas.length === 1 ? '' : 'es'} subida${exitosas.length === 1 ? '' : 's'}`)
+        //   }
+        // }
         cursors.current = [null]
         loadProducts(0, pageSize, searchTerm, selectedMarcaId)
         notify.success('Producto creado', { description: `${data.codigo_universal || '(sin código)'} - ${data.nombre?.trim() || '(sin nombre)'}` })
+        if (imageOps.pending.length > 0) {
+          notify.warning('Las imágenes no se guardaron', { description: 'La edición de imágenes está deshabilitada por el momento.' })
+        }
       }
       setModalOpen(false)
     } catch (e) {

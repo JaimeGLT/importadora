@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { clsx } from 'clsx'
 import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
@@ -72,7 +72,8 @@ const groups: NavGroup[] = [
     roles: ['admin'],
     items: [
       { label: 'Configuración',    to: '/configuracion',    roles: ['admin'] },
-      { label: 'Usuarios y roles', to: '/sistema/usuarios', roles: ['admin'] },
+      // MODO PORTAFOLIO: gestión de usuarios deshabilitada, ver App.tsx y UsuarioController.cs
+      // { label: 'Usuarios y roles', to: '/sistema/usuarios', roles: ['admin'] },
     ],
   },
 ]
@@ -169,9 +170,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ open, onClose, collapsed = false }: SidebarProps) {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const { pathname } = useLocation()
-  const navigate = useNavigate()
 
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>()
@@ -386,7 +386,7 @@ export function Sidebar({ open, onClose, collapsed = false }: SidebarProps) {
             )
           })}
 
-          {/* Mi cuenta — visible para todos los roles autenticados */}
+          {/* MODO PORTAFOLIO: "Mi cuenta" (perfil/contraseña) deshabilitado, ver App.tsx y MiCuentaController.cs
           <NavLabel>Cuenta</NavLabel>
           <NavLink
             to="/mi-cuenta"
@@ -401,7 +401,7 @@ export function Sidebar({ open, onClose, collapsed = false }: SidebarProps) {
               </>
             )}
           </NavLink>
-
+          */}
 
         </nav>
 
@@ -414,9 +414,8 @@ export function Sidebar({ open, onClose, collapsed = false }: SidebarProps) {
           }}
         >
           <div
-            onClick={() => { onClose(); navigate('/mi-cuenta') }}
-            className="flex items-center gap-[10px] flex-1 min-w-0 cursor-pointer rounded-md -m-1 p-1 hover:bg-[#F4ECDB]/[0.08] transition-colors"
-            title="Mi cuenta"
+            className="flex items-center gap-[10px] flex-1 min-w-0 rounded-md -m-1 p-1"
+            title="Modo portafolio: sin cuenta real"
           >
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-[#F4ECDB] font-semibold text-[12px] shrink-0"
@@ -433,6 +432,7 @@ export function Sidebar({ open, onClose, collapsed = false }: SidebarProps) {
               </div>
             </div>
           </div>
+          {/* MODO PORTAFOLIO: sin login real, no hay sesión que cerrar. Ver AuthContext.tsx
           <div
             onClick={() => { void logout().then(() => navigate('/login')) }}
             className="p-[5px] rounded-md text-[#CFA9A6] hover:bg-[#F4ECDB]/[0.08] hover:text-[#F4ECDB] cursor-pointer transition-colors"
@@ -444,6 +444,7 @@ export function Sidebar({ open, onClose, collapsed = false }: SidebarProps) {
               <line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
           </div>
+          */}
         </div>
 
       </div>
