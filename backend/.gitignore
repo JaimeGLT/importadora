@@ -1,0 +1,35 @@
+# Build results
+**/bin/
+**/obj/
+
+# Visual Studio
+**/.vs/
+*.suo
+*.user
+*.userosscache
+**/appsettings.Development.json
+**/appsettings.json
+*.sln.docstates
+
+# NuGet
+*.nupkg
+**/[Pp]ackages/*
+project.lock.json
+project.assets.json
+*.nuget.props
+*.nuget.targets
+
+# MSBuild
+*.中间缓存
+*.cache
+
+# Publish
+**/PubTmp/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+**/Migrations/
