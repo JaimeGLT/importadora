@@ -1,6 +1,6 @@
 export const runtime = 'edge'
 
-const BACKEND = 'https://backend-importadora-production.up.railway.app'
+const BACKEND = 'https://importadora-posn.onrender.com'
 // const BACKEND = "http://localhost:5120"
 
 function rewriteSetCookie(setCookieValue: string | null, targetDomain: string): string {

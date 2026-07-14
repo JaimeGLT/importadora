@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://backend-importadora-production.up.railway.app/api/:path*"
+      "destination": "https://importadora-posn.onrender.com/api/:path*"
     },
     {
       "source": "/graphql",
-      "destination": "https://backend-importadora-production.up.railway.app/graphql"
+      "destination": "https://importadora-posn.onrender.com/graphql"
     },
     {
       "source": "/hubs/:path*",
-      "destination": "https://backend-importadora-production.up.railway.app/hubs/:path*"
+      "destination": "https://importadora-posn.onrender.com/hubs/:path*"
     },
     {
       "source": "/(.*)",
