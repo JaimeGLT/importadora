@@ -1,0 +1,15 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Outer dark hexagon -->
+  <polygon points="50,2 93,26 93,74 50,98 7,74 7,26" fill="#1a1a1a"/>
+  <!-- Inner red hexagon -->
+  <polygon points="50,9 87,30 87,70 50,91 13,70 13,30" fill="#cc1010"/>
+  <!-- White stripe -->
+  <rect x="11" y="38" width="78" height="24" fill="white"/>
+  <!-- USA text in red -->
+  <text x="50" y="56" text-anchor="middle" dominant-baseline="middle"
+        font-family="Arial Black, Impact, sans-serif"
+        font-weight="900" font-size="20" fill="#cc1010" letter-spacing="2">USA</text>
+  <!-- Stars above stripe -->
+  <text x="50" y="32" text-anchor="middle" dominant-baseline="middle"
+        font-family="Arial" font-size="13" fill="white" letter-spacing="4">★★★</text>
+</svg>
