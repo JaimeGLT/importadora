@@ -148,6 +148,17 @@ builder.Services.AddAuthentication(opt =>
 
 builder.Services.AddMapster();
 builder.Services.AddAuthorization();
+
+// ── MODO PORTAFOLIO ─────────────────────────────────────────────────────────
+// Login, roles y permisos deshabilitados: este handler se registra ADEMÁS de
+// los handlers normales de autorización y aprueba automáticamente cualquier
+// requerimiento pendiente ([Authorize], [Authorize(Roles=...)], políticas de
+// GraphQL, etc.), tanto en los controllers REST como en el esquema GraphQL
+// (ambos comparten IAuthorizationService). No se tocó ningún [Authorize] ni
+// la config de JWT: para restaurar el login/permisos originales, basta con
+// comentar o borrar la siguiente línea.
+builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, UsaAutoPartes.Api.Middleware.AllowAllAuthorizationHandler>();
+
 builder.Services.AddExceptionHandler<GlobalHandler>();
 
 //CORS
@@ -233,6 +244,12 @@ if (!app.Environment.IsProduction())
 }
 app.UseCors("CorsPoliticy");
 app.UseAuthentication();
+// MODO PORTAFOLIO: sin JWT no hay claims; este middleware le asigna a cada
+// request un ClaimsPrincipal "admin" real tomado de la DB para que los
+// controllers/queries que leen el usuario actual no truene. Ver
+// PortfolioIdentityMiddleware.cs. Quitar esta línea junto con el
+// AllowAllAuthorizationHandler de arriba para restaurar el login real.
+app.UseMiddleware<UsaAutoPartes.Api.Middleware.PortfolioIdentityMiddleware>();
 app.UseMiddleware<UsuarioBloqueadoMiddleware>();
 app.UseAuthorization();
 
